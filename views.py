@@ -7,10 +7,11 @@
 @time: 2019/05/13
 """
 
-from aiohttp import web
 import json
+
+from aiohttp import web
+
 from config import HASH_TOKEN
-import hashlib
 
 
 class Handler:

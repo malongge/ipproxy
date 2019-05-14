@@ -9,8 +9,8 @@
 
 import random
 
-# 代理池键名
 import aioredis
+
 from config import CONFIG
 
 PROXY_KEY = 'adsl'

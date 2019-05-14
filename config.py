@@ -6,10 +6,11 @@
 @file: config.py
 @time: 2019/05/13
 """
-import pathlib
 import hashlib
-import yaml
 import os
+import pathlib
+
+import yaml
 
 PROJ_ROOT = pathlib.Path(__file__).parent
 
