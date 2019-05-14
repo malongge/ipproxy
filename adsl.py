@@ -128,7 +128,7 @@ class Dialer:
         while True:
             print('ADSL Start, Remove Proxy, Please wait')
             await self.remove_proxy()
-            status1, output = await run_command(self.loop, ADSL_BASH)
+            status, output = await run_command(self.loop, ADSL_BASH)
             if status == 0:
                 print('ADSL Successfully')
                 ip = await self.get_ip()
