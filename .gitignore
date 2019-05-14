@@ -119,3 +119,5 @@ dmypy.json
 
 # custom files
 not_git
+
+config.yml

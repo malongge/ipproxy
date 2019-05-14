@@ -76,6 +76,24 @@ git clone source_code_address
 cd source_code_project
 pip install -r requrements.txt
 
+安装配置 redis 服务
+yum install redis
+
+vi /etc/redis.conf
+去掉行前的注释，并修改密码为所需的密码
+requirepass 123456
+maxclients 100
+maxmemory 268435456
+
+systemctl restart redis
+增加开机启动
+systemctl enable redis
+
+测试 redis
+redis-cli -h 0.0.0.0 -p 6379
+0.0.0.0:6379> auth 123456
+OK
+
 拨号脚本运行
 python adsl.py client1 # 一个 client 对应一个代理 ip 服务器，名字随意取，但必需不同
 
