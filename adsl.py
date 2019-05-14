@@ -7,35 +7,17 @@
 @time: 2019/05/13
 """
 
+import asyncio
 import re
 import time
 from collections import defaultdict
-import asyncio
-import aiohttp
-from redis import init_redis, close_redis, RedisClient
-from config import conf
 from subprocess import Popen, PIPE
 
-# 拨号网卡
-# ADSL_IFNAME = 'ppp0'
-ADSL_IFNAME = 'en0'
-# 测试 URL
-TEST_URL = 'http://www.baidu.com'
-# 测试超时时间
-TEST_TIMEOUT = 20
-# 拨号间隔
-ADSL_CYCLE = 60 * 10
-# 拨号出错重试间隔
-ADSL_ERROR_CYCLE = 5
-# ADSL命令
-# ADSL_BASH = ['adsl-stop;adsl-start']
-ADSL_BASH = ['ping', '-c3', 'www.baidu.com']
-# 代理运行端口
-PROXY_PORT = 9999
-# 客户端唯一标识
-CLIENT_NAME = 'adsl1'
-# 获取 IP 地址命令
-IFCONFIG_BASH = ['ifconfig']
+import aiohttp
+
+from config import (ADSL_IFNAME, TEST_URL, TEST_TIMEOUT,
+                    ADSL_CYCLE, ADSL_ERROR_CYCLE, ADSL_BASH, PROXY_PORT, IFCONFIG_BASH)
+from redis import init_redis, RedisClient
 
 
 async def connect_write_pipe(loop, file):
@@ -101,9 +83,10 @@ async def run_command(loop, command, enters=None):
 class Dialer:
     ip_pattern = re.compile(ADSL_IFNAME + '.*?inet.*?(\d+\.\d+\.\d+\.\d+).*?netmask', re.S)
 
-    def __init__(self, loop):
+    def __init__(self, loop, client_name):
         self.loop = loop
         self.db = None
+        self.client_name = client_name
 
     async def get_ip(self):
         """
@@ -137,7 +120,7 @@ class Dialer:
         移除代理
         :return: None
         """
-        await self.db.remove(CLIENT_NAME)
+        await self.db.remove(self.client_name)
         print('Successfully Removed Proxy')
 
     async def set_proxy(self, proxy):
@@ -146,7 +129,7 @@ class Dialer:
         :param proxy: 代理
         :return: None
         """
-        result = await self.db.set(CLIENT_NAME, proxy)
+        result = await self.db.set(self.client_name, proxy)
         if result:
             print('Successfully Set Proxy', proxy)
 
@@ -156,7 +139,7 @@ class Dialer:
         :return: None
         """
         if not self.db:
-            self.db = RedisClient(await init_redis(conf['redis'], loop))
+            self.db = RedisClient(await init_redis(loop))
         while True:
             print('ADSL Start, Remove Proxy, Please wait')
             await self.remove_proxy()
@@ -168,7 +151,7 @@ class Dialer:
                     print('Now IP', ip)
                     print('Testing Proxy, Please Wait')
                     proxy = '{ip}:{port}'.format(ip=ip, port=PROXY_PORT)
-                    if await self.test_proxy(proxy):
+                    if not await self.test_proxy(proxy):
                         print('Valid Proxy')
                         await self.set_proxy(proxy)
                         print('Sleeping')
@@ -184,11 +167,18 @@ class Dialer:
 
 
 if __name__ == '__main__':
+    import sys
+
+    if len(sys.argv) < 2:
+        print('Need client name!!!')
+        sys.exit(0)
+    client_name = sys.argv[1]
     loop = asyncio.get_event_loop()
-    dial = Dialer(loop)
+    dial = Dialer(loop, client_name)
     try:
         result = loop.run_until_complete(dial.adsl())
     finally:
         if dial.db:
-            loop.run_until_complete(close_redis(dial.db))
+            loop.run_until_complete(dial.db.close())
         loop.close()
+        print('Clean data finished')

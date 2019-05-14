@@ -11,27 +11,27 @@ import asyncio
 import logging
 
 from aiohttp import web
-
-from config import conf
+from config import CONFIG
 from redis import setup_redis
 from views import Handler
+from redis import RedisClient
 
 
 def setup_routes(app, handler):
     router = app.router
     h = handler
     router.add_get('/', h.index, name='index')
-    router.add_get('/{choice}', h.choice, name='index')
+    router.add_get('/{choice}', h.choice, name='choice')
 
 
 async def init(loop):
     app = web.Application(loop=loop)
     redis_pool = await setup_redis(app, loop)
 
-    handler = Handler(redis_pool)
+    handler = Handler(RedisClient(redis_pool))
 
     setup_routes(app, handler)
-    host, port = conf['host'], conf['port']
+    host, port = CONFIG['host'], CONFIG['port']
     return app, host, port
 
 

@@ -11,8 +11,7 @@ import random
 
 # 代理池键名
 import aioredis
-
-from config import conf
+from config import CONFIG
 
 PROXY_KEY = 'adsl'
 
@@ -87,19 +86,25 @@ class RedisClient(object):
         """
         return await self.db.hgetall(self.proxy_key)
 
+    async def close(self):
+        self.db.close()
+        await self.db.wait_closed()
 
-async def init_redis(conf, loop):
+
+async def init_redis(loop):
+    _conf = CONFIG['redis']
     pool = await aioredis.create_redis_pool(
-        (conf['host'], conf['port']), db=conf['db'], password=conf['password'],
-        minsize=conf['minsize'],
-        maxsize=conf['maxsize'],
-        loop=loop
+        (_conf['host'], _conf['port']), db=_conf['db'], password=_conf['password'],
+        minsize=_conf['minsize'],
+        maxsize=_conf['maxsize'],
+        loop=loop,
+        encoding='utf-8'
     )
     return pool
 
 
 async def setup_redis(app, loop):
-    pool = await init_redis(conf['redis'], loop)
+    pool = await init_redis(loop)
 
     async def close_redis(app):
         pool.close()
@@ -108,8 +113,3 @@ async def setup_redis(app, loop):
     app.on_cleanup.append(close_redis)
     app['redis_pool'] = pool
     return pool
-
-
-async def close_redis(pool):
-    pool.close()
-    await pool.wait_closed()

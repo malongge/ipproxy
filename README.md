@@ -76,4 +76,18 @@ git clone source_code_address
 cd source_code_project
 pip install -r requrements.txt
 
+拨号脚本运行
+python adsl.py client1 # 一个 client 对应一个代理 ip 服务器，名字随意取，但必需不同
+
+获取代理ip
+http://127.0.0.1:9000/random
+
+```json
+{
+"errcode": 0,
+"proxy": "10.40.33.246:9999"
+}
+
+```
+
 
