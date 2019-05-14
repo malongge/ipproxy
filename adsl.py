@@ -185,4 +185,8 @@ if __name__ == '__main__':
             loop.run_until_complete(dial.db.close())
         loop.close()
         print('Clean data finished')
-
+    # loop = asyncio.get_event_loop()
+    # try:
+    #     result = loop.run_until_complete(test_proxy('110.83.40.252:9999'))
+    # finally:
+    #     loop.close()
