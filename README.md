@@ -74,7 +74,7 @@ source ipproxy/bin/activate
 git clone source_code_address
 
 cd source_code_project
-pip install -r requrements.txt
+pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 
 安装配置 redis 服务
 yum install redis

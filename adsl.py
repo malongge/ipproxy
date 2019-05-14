@@ -151,7 +151,7 @@ class Dialer:
                     print('Now IP', ip)
                     print('Testing Proxy, Please Wait')
                     proxy = '{ip}:{port}'.format(ip=ip, port=PROXY_PORT)
-                    if not await self.test_proxy(proxy):
+                    if await self.test_proxy(proxy):
                         print('Valid Proxy')
                         await self.set_proxy(proxy)
                         print('Sleeping')
