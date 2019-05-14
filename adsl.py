@@ -41,7 +41,7 @@ async def connect_read_pipe(loop, file):
 
 async def run_command(loop, command, enters=None):
     # start subprocess and wrap stdin, stdout, stderr
-    p = Popen(command, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    p = Popen(command, stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)
 
     stdin = await connect_write_pipe(loop, p.stdin)
     stdout, stdout_transport = await connect_read_pipe(loop, p.stdout)
@@ -128,7 +128,7 @@ class Dialer:
         while True:
             print('ADSL Start, Remove Proxy, Please wait')
             await self.remove_proxy()
-            status, output = await run_command(self.loop, ADSL_BASH)
+            status1, output = await run_command(self.loop, ADSL_BASH)
             if status == 0:
                 print('ADSL Successfully')
                 ip = await self.get_ip()

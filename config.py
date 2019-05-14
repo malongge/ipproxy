@@ -34,7 +34,7 @@ if DEV is 0:
 else:
     ADSL_IFNAME = 'ppp0'
     # ADSL命令
-    ADSL_BASH = ['/usr/sbin/adsl-stop;/usr/sbin/adsl-start']
+    ADSL_BASH = ['adsl-stop;adsl-start']
 
 TEST_URL = 'http://www.baidu.com'
 TEST_TIMEOUT = 20
