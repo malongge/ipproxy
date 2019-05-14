@@ -100,21 +100,6 @@ class Dialer:
                 ip = result.group(1)
                 return ip
 
-    async def test_proxy(self, proxy):
-        """
-        测试代理
-        :param proxy: 代理
-        :return: 测试结果
-        """
-        try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(TEST_URL, timeout=TEST_TIMEOUT, proxy='http://' + proxy) as resp:
-                    if resp.status == 200:
-                        return True
-        except Exception as e:
-            print(e)
-            return False
-
     async def remove_proxy(self):
         """
         移除代理
@@ -151,7 +136,7 @@ class Dialer:
                     print('Now IP', ip)
                     print('Testing Proxy, Please Wait')
                     proxy = '{ip}:{port}'.format(ip=ip, port=PROXY_PORT)
-                    if await self.test_proxy(proxy):
+                    if await test_proxy(proxy):
                         print('Valid Proxy')
                         await self.set_proxy(proxy)
                         print('Sleeping')
@@ -164,6 +149,24 @@ class Dialer:
             else:
                 print('ADSL Failed, Please Check')
                 time.sleep(ADSL_ERROR_CYCLE)
+
+
+async def test_proxy(proxy):
+    """
+    测试代理
+    :param proxy: 代理
+    :return: 测试结果
+    """
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(TEST_URL, timeout=TEST_TIMEOUT, proxy='http://' + proxy) as resp:
+                if resp.status == 200:
+                    print('test proxy success')
+                    return True
+
+    except Exception as e:
+        print(e)
+        return False
 
 
 if __name__ == '__main__':
@@ -182,3 +185,4 @@ if __name__ == '__main__':
             loop.run_until_complete(dial.db.close())
         loop.close()
         print('Clean data finished')
+

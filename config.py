@@ -22,7 +22,7 @@ def load_config(fname):
     return data
 
 
-DEV = int(os.environ.get('DEV_MODE', 0))
+DEV = int(os.environ.get('DEV_MODE', 1))
 
 # 获取 IP 地址命令
 CONFIG = load_config(PROJ_ROOT / 'config.yml')
